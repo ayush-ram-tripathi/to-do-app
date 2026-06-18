@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String   @default("ADMIN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Trainer {
+  id             String    @id @default(cuid())
+  name           String
+  experience     String
+  specialization String
+  rating         Float     @default(5.0)
+  bio            String
+  photo          String?
+  certifications String?
+  availableSlots String?
+  bookings       Booking[]
+  reviews        Review[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Service {
+  id          String    @id @default(cuid())
+  name        String
+  description String
+  duration    Int       // in minutes
+  price       Float
+  image       String?
+  bookings    Booking[]
+  reviews     Review[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Booking {
+  id              String   @id @default(cuid())
+  customerName    String
+  customerPhone   String
+  customerEmail   String
+  customerAddress String?
+  
+  serviceId       String
+  service         Service  @relation(fields: [serviceId], references: [id])
+  
+  trainerId       String
+  trainer         Trainer  @relation(fields: [trainerId], references: [id])
+  
+  date            DateTime
+  time            String
+  goals           String?
+  notes           String?
+  status          String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED, COMPLETED
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String
+  message   String?
+  status    String   @default("NEW") // NEW, CONTACTED, CONVERTED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  customerName String
+  rating      Int
+  comment     String?
+  
+  trainerId   String?
+  trainer     Trainer? @relation(fields: [trainerId], references: [id])
+  
+  serviceId   String?
+  service     Service? @relation(fields: [serviceId], references: [id])
+  
+  createdAt   DateTime @default(now())
+}
